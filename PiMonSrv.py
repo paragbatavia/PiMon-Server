@@ -5,6 +5,7 @@ import subprocess
 def ping(host):
     """
     Returns True if host (str) responds to a ping request
+    Code taken from: https://stackoverflow.com/questions/2953462/pinging-servers-in-python
     """
 
     # Option for the number of packets as a function of OS
