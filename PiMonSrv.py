@@ -62,8 +62,53 @@ def readMailParams(fileName):
 
     return smtpParams
 
+def sendMail(smtpParams, mailText):
+    """
+    Sends email based on SMTP params
+    Partially taken from https://realpython.com/python-send-email/
+    smtpParams = (string) filename of YAML file with SMTP params
+    mailText = (string) full text of email to send
+    """
 
-smtpParams = readMailParams("mailPassword.yaml")
+    server = smtpParams["mailServer"]
+    port = smtpParams["mailPort"]
+    user = smtpParams["mailUsername"]
+    password = smtpParams["mailPassword"]
+
+    senderEmail = smtpParams["senderEmail"]
+    recipientEmail = smtpParams["recipientEmail"]
+
+    context = ssl.create_default_context()
+
+    #    with smtplib.SMTP_SSL(server, port, context=context) as server:
+    #
+    #        server.login(user, password)
+    #        server.sendmail(senderEmail, recipientEmail, mailText)
+
+    try:
+        server = smtplib.SMTP(server, port)
+        server.ehlo()
+        server.starttls(context=context)
+        server.ehlo()
+        server.login(user, password)
+        server.sendmail(senderEmail, recipientEmail, mailText)
+    except Exception as e:
+        print(e)
+    finally:
+        server.quit()
+        
+
+
+smtpParams = readMailParams("smtpParams.yaml")
+
+message = """\
+Subject: Hello
+
+This is a test email.
+"""
+
+sendMail(smtpParams, message)
+
         
 # relay = gpiozero.LED(relayGPIO)
 
