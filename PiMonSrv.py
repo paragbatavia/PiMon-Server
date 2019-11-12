@@ -3,8 +3,10 @@ import platform
 import subprocess
 import time
 import sys
+import gpiozero
 
 host = str("8.8.8.8")
+relayGPIO = 21
 
 
 def ping(host, printOutput):
@@ -44,12 +46,15 @@ def resetRouter(downTime, waitTime):
     time.sleep(waitTime)
 
     # did it work?
-    return ping(host)
+    return ping(host, False)
     
 
 
+relay = gpiozero.LED(relayGPIO)
+
 while 1:
-    retVal = ping(host, True)
+    retVal = ping(host, False)
     print ("returned " + str(retVal))
+    relay.on()
     time.sleep(2.0)
 
