@@ -1,12 +1,15 @@
+import sys
 import os
 import platform
 import subprocess
 import time
-import sys
 import gpiozero
+import smtplib, ssl
+import yaml
 
 host = str("8.8.8.8")
 relayGPIO = 21
+mailSendPort = 587
 
 
 def ping(host, printOutput):
@@ -48,13 +51,25 @@ def resetRouter(downTime, waitTime):
     # did it work?
     return ping(host, False)
     
+def readMailParams(fileName):
+    """
+    Reads SMTP params from a YAML file - since we don't want to hard code that
+    fileName: string of param file name
+    """
+    
+    with open(fileName) as f:
+        smtpParams = yaml.load(f, Loader=yaml.FullLoader)
+
+    return smtpParams
 
 
-relay = gpiozero.LED(relayGPIO)
+smtpParams = readMailParams("mailPassword.yaml")
+        
+# relay = gpiozero.LED(relayGPIO)
 
-while 1:
-    retVal = ping(host, False)
-    print ("returned " + str(retVal))
-    relay.on()
-    time.sleep(2.0)
+# while 1:
+#    retVal = ping(host, False)
+#    print ("returned " + str(retVal))
+#    relay.on()
+#    time.sleep(2.0)
 
