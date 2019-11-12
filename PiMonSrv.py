@@ -4,12 +4,16 @@ import platform
 import subprocess
 import time
 import gpiozero
-import smtplib, ssl
+import smtplib, ssl, email
 import yaml
 
-host = str("8.8.8.8")
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 relayGPIO = 21
-mailSendPort = 587
+
 
 
 def ping(host, printOutput):
@@ -62,11 +66,12 @@ def readMailParams(fileName):
 
     return smtpParams
 
-def sendMail(smtpParams, mailText):
+def sendMail(smtpParams, subjectText, mailText):
     """
     Sends email based on SMTP params
     Partially taken from https://realpython.com/python-send-email/
     smtpParams = (string) filename of YAML file with SMTP params
+    subject = (string) subject of email
     mailText = (string) full text of email to send
     """
 
@@ -75,9 +80,16 @@ def sendMail(smtpParams, mailText):
     user = smtpParams["mailUsername"]
     password = smtpParams["mailPassword"]
 
-    senderEmail = smtpParams["senderEmail"]
-    recipientEmail = smtpParams["recipientEmail"]
+    sender = smtpParams["senderEmail"]
+    recipient = smtpParams["recipientEmail"]
 
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subjectText
+    message["From"] = sender
+    message["To"] = recipient
+    part1 = MIMEText(mailText, "plain")
+    message.attach(part1)
+    
     context = ssl.create_default_context()
 
     #    with smtplib.SMTP_SSL(server, port, context=context) as server:
@@ -91,7 +103,7 @@ def sendMail(smtpParams, mailText):
         server.starttls(context=context)
         server.ehlo()
         server.login(user, password)
-        server.sendmail(senderEmail, recipientEmail, mailText)
+        server.sendmail(sender, recipient, message.as_string())
     except Exception as e:
         print(e)
     finally:
@@ -101,13 +113,12 @@ def sendMail(smtpParams, mailText):
 
 smtpParams = readMailParams("smtpParams.yaml")
 
+subject = "mail test"
 message = """\
-Subject: Hello
-
 This is a test email.
 """
 
-sendMail(smtpParams, message)
+sendMail(smtpParams, subject, message)
 
         
 # relay = gpiozero.LED(relayGPIO)
