@@ -1,0 +1,5 @@
+mailServer : mail.server.com
+mailPort : 587
+mailUsername : email@mail.server.com
+mailPassword : mySecurePassword
+
