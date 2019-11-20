@@ -6,7 +6,7 @@ import time
 import gpiozero
 import smtplib, ssl, email
 import yaml
-
+from datetime import datetime
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -44,11 +44,11 @@ def resetRouter(downTime, waitTime):
     """
 
     # send a power down command
-
+    relay.on()
     time.sleep(downTime)
 
     # send a power up command
-
+    relay.off()
     # wait for everything to come back up
     time.sleep(waitTime)
 
@@ -118,14 +118,43 @@ message = """\
 This is a test email.
 """
 
-sendMail(smtpParams, subject, message)
+# sendMail(smtpParams, subject, message)
 
         
-# relay = gpiozero.LED(relayGPIO)
+relay = gpiozero.LED(relayGPIO)
 
-# while 1:
-#    retVal = ping(host, False)
-#    print ("returned " + str(retVal))
-#    relay.on()
-#    time.sleep(2.0)
+# how long to sleep between checks (seconds)
+sleepTime = 5.0
+# how long internet must be down before restarting (seconds)
+restartDelay = 60.0
+# how long internet has been down
+downTime = 0.0
+mailSent = False
+
+while 1:
+    # first, check to see if we have internet
+    retVal = ping(host, true)
+    if not retVal:
+        # internet is down
+        downTime = downTime + sleepTime
+    else:
+        downTime = 0.0
+
+
+    if downTime >= restartDelay:
+        itWorked = resetRouter(15.0, 120.0)
+
+    # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
+    if itWorked:
+        downTime = 0.0
+        # send email
+        now = datetime.now()
+        dtStr = now.strftime("%d/%m/%Y %H:%M:%S")
+        subject = "Internet Restarted"
+        message = "The cable modem and router were rebooted successful on " + dtStr + "\n")
+        sendMail(smtpParams, subject, message)
+        
+        
+    time.sleep(sleepTime)
+        
 
