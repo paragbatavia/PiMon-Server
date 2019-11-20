@@ -142,7 +142,7 @@ while 1:
 
 
     if downTime >= restartDelay:
-        itWorked = resetRouter(15.0, 120.0)
+        itWorked = resetRouter(15.0, 200.0)
 
     # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
     if itWorked:
