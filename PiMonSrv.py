@@ -133,19 +133,24 @@ mailSent = False
 
 while 1:
     # first, check to see if we have internet
-    retVal = ping(host, true)
+    print ("Pinging host\n")
+    retVal = ping(host, False)
     if not retVal:
         # internet is down
         downTime = downTime + sleepTime
+        print ("lost contact time: " + downTime + "\n")
     else:
+        print ("Internet is up\n")
         downTime = 0.0
 
 
     if downTime >= restartDelay:
+        print ("restarting router\n")
         itWorked = resetRouter(15.0, 200.0)
 
     # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
     if itWorked:
+        print ("restart worked - sending email\n")
         downTime = 0.0
         # send email
         now = datetime.now()
