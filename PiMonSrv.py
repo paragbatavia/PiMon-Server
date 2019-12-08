@@ -153,7 +153,7 @@ while 1:
         # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
         if itWorked:
             print ("restart worked - sending email\n")
-            downTime = 0.0+
+            downTime = 0.0
             # send email
             now = datetime.now()
             dtStr = now.strftime("%d/%m/%Y %H:%M:%S")
