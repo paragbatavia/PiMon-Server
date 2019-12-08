@@ -13,7 +13,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 relayGPIO = 21
-
+hostIP = "8.8.8.8"
 
 
 def ping(host, printOutput):
@@ -44,16 +44,18 @@ def resetRouter(downTime, waitTime):
     """
 
     # send a power down command
+    print ("powering down")
     relay.on()
     time.sleep(downTime)
-
+    
     # send a power up command
+    print ("powering up")
     relay.off()
     # wait for everything to come back up
     time.sleep(waitTime)
-
+    print ("testing to see if we're re-connected")
     # did it work?
-    return ping(host, False)
+    return ping(hostIP, False)
     
 def readMailParams(fileName):
     """
@@ -134,11 +136,11 @@ mailSent = False
 while 1:
     # first, check to see if we have internet
     print ("Pinging host\n")
-    retVal = ping(host, False)
+    retVal = ping(hostIP, False)
     if not retVal:
         # internet is down
         downTime = downTime + sleepTime
-        print ("lost contact time: " + downTime + "\n")
+        print ("lost contact time: " + str(downTime) + "\n")
     else:
         print ("Internet is up\n")
         downTime = 0.0
@@ -146,18 +148,18 @@ while 1:
 
     if downTime >= restartDelay:
         print ("restarting router\n")
-        itWorked = resetRouter(15.0, 200.0)
+        itWorked = resetRouter(15.0, 180.0)
 
-    # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
-    if itWorked:
-        print ("restart worked - sending email\n")
-        downTime = 0.0
-        # send email
-        now = datetime.now()
-        dtStr = now.strftime("%d/%m/%Y %H:%M:%S")
-        subject = "Internet Restarted"
-        message = "The cable modem and router were rebooted successful on " + dtStr + "\n")
-        sendMail(smtpParams, subject, message)
+        # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
+        if itWorked:
+            print ("restart worked - sending email\n")
+            downTime = 0.0+
+            # send email
+            now = datetime.now()
+            dtStr = now.strftime("%d/%m/%Y %H:%M:%S")
+            subject = "Internet Restarted"
+            message = "The cable modem and router were rebooted successful on " + dtStr + "\n"
+            sendMail(smtpParams, subject, message)
         
         
     time.sleep(sleepTime)
