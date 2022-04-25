@@ -113,7 +113,7 @@ def sendMail(smtpParams, subjectText, mailText):
         
 
 
-smtpParams = readMailParams("smtpParams.yaml")
+smtpParams = readMailParams("/home/pi/Software/PiMon-Server/smtpParams.yaml")
 
 subject = "mail test"
 message = """\
@@ -128,7 +128,7 @@ relay = gpiozero.LED(relayGPIO)
 # how long to sleep between checks (seconds)
 sleepTime = 5.0
 # how long internet must be down before restarting (seconds)
-restartDelay = 60.0
+restartDelay = 40.0
 # how long internet has been down
 downTime = 0.0
 mailSent = False
@@ -148,7 +148,7 @@ while 1:
 
     if downTime >= restartDelay:
         print ("restarting router\n")
-        itWorked = resetRouter(15.0, 180.0)
+        itWorked = resetRouter(15.0, 240.0)
 
         # if a successful restart, then reset downtime counter. If not, it'll end up resetting again
         if itWorked:
